@@ -1,0 +1,8 @@
+{
+  module: {
+    name: 'ble_manager',
+    type: 'har',
+    deviceTypes: ['default'],
+  },
+
+}
