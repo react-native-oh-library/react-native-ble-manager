@@ -1,6 +1,6 @@
 {
-  "name": "react-native-ble-manager",
-  "version": "11.5.3",
+  "name": "@react-native-oh-tpl/react-native-ble-manager",
+  "version": "11.5.2-0.0.1",
   "description": "A BLE module for react native.",
   "repository": {
     "type": "git",
@@ -32,8 +32,17 @@
     "/android",
     "!/android/build",
     "/ios",
-    "/*.podspec"
+    "/*.podspec",
+    "/harmony"
   ],
+  "harmony": {
+    "alias": "react-native-ble-manager",
+    "codegenConfig": {
+      "specPaths": [
+        "./src"
+      ]
+    }
+  },
   "scripts": {
     "version": "git add -A",
     "clean": "rimraf dist",
@@ -48,11 +57,17 @@
     "postversion": "git push --follow-tags"
   },
   "peerDependencies": {
-    "react-native": ">=0.60.0"
+    "react-native": ">=0.60.0",
+    "react-native-create-thumbnail": "2.0.0"
   },
   "devDependencies": {
     "react-native": "0.73.6",
     "rimraf": "4.1.2",
     "typescript": "4.9.5"
+  },
+  "dependencies": {
+    "react-native-svg": "^15.2.0",
+    "react-native-typing-animation": "^0.1.7",
+    "react-native-video-cache": "^2.7.4"
   }
 }
