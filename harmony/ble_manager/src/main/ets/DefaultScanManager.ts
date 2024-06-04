@@ -155,4 +155,8 @@ export default class DefaultScanManager{
   getIsScanning() {
     return this.isScanning
   }
+
+  setIsScanning(){
+    return this.isScanning = false
+  }
 }

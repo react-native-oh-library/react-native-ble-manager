@@ -454,12 +454,6 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
 
   start(options: StartOptions): Promise<void> {
     this.logger.info("start")
-    // this.startAdvertising()
-    // this.addService()
-    // this.onCharacteristicWrite()
-    // this.onCharacteristicRead()
-    // this.onDescriptorWrite()
-    // this.onDescriptorRead()
     //鸿蒙只存在一种扫描器
     this.scanManager = new DefaultScanManager(this.ctx,this)
     access.on('stateChange',this.onStateChange.bind(this));
@@ -574,6 +568,7 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
   //关闭BLE扫描流程
   stopScan(): Promise<void> {
     ble.stopBLEScan();
+    this.scanManager.setIsScanning()
     let bleStopScanEvent:BleStopScanEvent = {
       status:0
     }
@@ -630,11 +625,43 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
     return Promise.reject('Peripheral not found')
   }
 
+  //移除Peripheral
+  removePeripheral(peripheralId:string):Promise<void>{
+    return new Promise((resolve,reject)=>{
+      let peripheralData = this.peripherals.get(peripheralId);
+      if(peripheralData !=null){
+        if(peripheralData.isConnected()){
+            promptAction.showToast({message:'Peripheral can not be removed while connected"'})
+        }else{
+          this.peripherals.remove(peripheralId)
+          promptAction.showToast({message:'removePeripheral is success'})
+        }
+      }else{
+        resolve()
+      }
+    })
+  }
+
   isScanning():Promise<boolean> {
     if(this.scanManager) {
       return Promise.resolve(this.scanManager.getIsScanning())
     }
     return Promise.resolve(false);
+  }
+
+
+  isPeripheralConnected(peripheralId: string, serviceUUIDs: string[]): Promise<boolean> {
+    return new Promise((resolve,reject)=>{
+      let result: Array<string> = ble.getConnectedBLEDevices();
+      result.forEach((item)=>{
+        return item
+      })
+      if(result.includes(peripheralId)){
+        return resolve(true)
+      }else{
+        return reject("peripheralId not found")
+      }
+    })
   }
 
   //移除绑定设备
@@ -698,7 +725,6 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
     return peripheralData;
   }
 
-
   isBluetoothAddress(address: string): boolean {
     const bluetoothRegex = /^([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})$/;
     return bluetoothRegex.test(address);
@@ -721,248 +747,6 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
     }
   }
 
-  startAdvertising() {
-    let manufactureValueBuffer = new Uint8Array(4);
-    manufactureValueBuffer[0] = 1;
-    manufactureValueBuffer[1] = 2;
-    manufactureValueBuffer[2] = 3;
-    manufactureValueBuffer[3] = 4;
-
-    let serviceValueBuffer = new Uint8Array(4);
-    serviceValueBuffer[0] = 4;
-    serviceValueBuffer[1] = 6;
-    serviceValueBuffer[2] = 7;
-    serviceValueBuffer[3] = 8;
-    console.info('ble server manufactureValueBuffer = ' + JSON.stringify(manufactureValueBuffer));
-    console.info('ble server serviceValueBuffer = ' + JSON.stringify(serviceValueBuffer));
-
-    try {
-      let setting: ble.AdvertiseSetting = {
-        interval: 1600,
-        txPower: 0,
-        connectable: true,
-      };
-      let manufactureDataUnit: ble.ManufactureData = {
-        manufactureId: 4567,
-        manufactureValue: manufactureValueBuffer.buffer
-      };
-      let serviceDataUnit: ble.ServiceData = {
-        serviceUuid: '00001888-0000-1000-8000-00805f9b34fb',
-        serviceValue: serviceValueBuffer.buffer
-      };
-      let advData: ble.AdvertiseData = {
-        serviceUuids: ['00001888-0000-1000-8000-00805f9b34fb'],
-        manufactureData: [manufactureDataUnit],
-        serviceData: [serviceDataUnit],
-        includeDeviceName: true
-      };
-      let advResponse: ble.AdvertiseData = {
-        serviceUuids: ['00001888-0000-1000-8000-00805f9b34fb'],
-        manufactureData: [manufactureDataUnit],
-        serviceData: [serviceDataUnit],
-      };
-      let advertisingParams: ble.AdvertisingParams = {
-        advertisingSettings: setting,
-        advertisingData: advData,
-        advertisingResponse: advResponse,
-        duration: 0,
-      }
-      ble.startAdvertising(advertisingParams, (err, outAdvHandle) => {
-        if (err) {
-          return;
-        } else {
-          this.addService()
-        }
-      });
-    } catch (err) {
-      console.error('ble server startAdvertising errCode: ' + (err as BusinessError).code + ', errMessage: ' + (err as BusinessError).message);
-    }
-  }
-
-  addService() {
-    let characteristicUuid = '00001820-0000-1000-8000-00805F9B34FB';
-    // 创建descriptors
-    let descriptors: Array<ble.BLEDescriptor> = [];
-    let descriptor: ble.BLEDescriptor = {
-      serviceUuid: "00001888-0000-1000-8000-00805f9b34fb",
-      characteristicUuid: characteristicUuid,
-      descriptorUuid: '00002902-0000-1000-8000-00805F9B34FB',
-      descriptorValue: Utils.string2ArrayBuffer(this.descriptorValue)
-    };
-
-    let descriptor1: ble.BLEDescriptor = {
-      serviceUuid: "00001888-0000-1000-8000-00805f9b34fb",
-      characteristicUuid: characteristicUuid,
-      descriptorUuid: '00002903-0000-1000-8000-00805F9B34FB',
-      descriptorValue: Utils.string2ArrayBuffer(this.descriptorValue)
-    };
-
-    descriptors[0] = descriptor;
-    descriptors[1] = descriptor1;
-
-    let properties: ble.GattProperties = {
-      write: true,
-      writeNoResponse: false,
-      read: true,
-      notify: true,
-      indicate: true
-    }
-
-    // 创建characteristics
-    let characteristics: Array<ble.BLECharacteristic> = [];
-    let characteristic: ble.BLECharacteristic = {
-      serviceUuid: "00001888-0000-1000-8000-00805f9b34fb",
-      characteristicUuid: characteristicUuid,
-      characteristicValue: Utils.string2ArrayBuffer(this.charValue),
-      descriptors: descriptors,
-      properties: properties
-    };
-    characteristics[0] = characteristic;
-
-    // 创建gattService
-    let gattService: ble.GattService = {
-      serviceUuid: "00001888-0000-1000-8000-00805f9b34fb",
-      isPrimary: true,
-      characteristics: characteristics,
-      includeServices: []
-    };
-
-    try {
-      this.gattServer.addService(gattService);
-    } catch (err) {
-      console.error('ble server addService errCode: ' + (err as BusinessError).code + ', errMessage: ' + (err as BusinessError).message);
-    }
-  }
-
-  //server端订阅特征值写请求事件
-  onCharacteristicWrite() {
-    try {
-      this.gattServer.on('characteristicWrite', (characteristicWriteRequest: ble.CharacteristicWriteRequest) => {
-        console.log('on onCharacteristicWrite start')
-        let deviceId: string = characteristicWriteRequest.deviceId;
-        let transId: number = characteristicWriteRequest.transId;
-        let offset: number = characteristicWriteRequest.offset;
-        let isPrepared: boolean = characteristicWriteRequest.isPrepared;
-        let needRsp: boolean = characteristicWriteRequest.needRsp;
-        let value: Uint8Array = new Uint8Array(characteristicWriteRequest.value);
-        this.charValue = Utils.ArrayBuffer2String(characteristicWriteRequest.value);
-        let characteristicUuid: string = characteristicWriteRequest.characteristicUuid;
-
-        let serverResponse: ble.ServerResponse = {
-          deviceId: deviceId,
-          transId: transId,
-          status: 0,
-          offset: offset,
-          value: Utils.string2ArrayBuffer(this.charValue)
-        };
-
-        let notifyCharacter: ble.NotifyCharacteristic = {
-          serviceUuid: characteristicWriteRequest.serviceUuid,
-          characteristicUuid: characteristicUuid,
-          characteristicValue: Utils.string2ArrayBuffer(this.charValue),
-          confirm: true,
-        };
-
-        try {
-          this.gattServer.sendResponse(serverResponse);
-          this.gattServer.notifyCharacteristicChanged(deviceId, notifyCharacter).then(() => {
-            console.info('notifyCharacteristicChanged promise successfull');
-            console.log(this.charValue)
-          });
-
-          console.info('onCharacteristicWrite send success, value = ' + JSON.stringify(serverResponse))
-        } catch (err) {
-          console.error('errCode: ' + (err as BusinessError).code + ', errMessage: ' + (err as BusinessError).message);
-        }
-      });
-    } catch (err) {
-      console.error("errCode:" + (err as BusinessError).code + ",errMessage:" + (err as BusinessError).message);
-    }
-  }
-
-  //订阅特征值读请求事件
-  onCharacteristicRead() {
-    let gattServer: ble.GattServer = this.gattServer;
-    gattServer.on('characteristicRead', (characteristicReadRequest: ble.CharacteristicReadRequest) => {
-      let deviceId: string = characteristicReadRequest.deviceId;
-      let transId: number = characteristicReadRequest.transId;
-      let offset: number = characteristicReadRequest.offset;
-      let characteristicUuid: string = characteristicReadRequest.characteristicUuid;
-      let rspBuffer = new ArrayBuffer(2);
-      let rspValue = new Uint8Array(rspBuffer);
-      rspValue[0] = 21;
-      rspValue[1] = 22;
-      let serverResponse: ble.ServerResponse = {
-        deviceId: deviceId,
-        transId: transId,
-        status: 0,
-        offset: offset,
-        value: rspBuffer
-        //value: Utils.string2ArrayBuffer(this.charValue)
-      };
-
-      try {
-        gattServer.sendResponse(serverResponse);
-        console.info('ble server onCharacteristicRead sendResponse success')
-      } catch (err) {
-        console.error('errCode: ' + (err as BusinessError).code + ', errMessage: ' + (err as BusinessError).message);
-      }
-    });
-  }
-
-  //server端订阅描述符写请求事件
-  onDescriptorWrite() {
-    try {
-      let gattServer: ble.GattServer = this.gattServer;
-      gattServer.on('descriptorWrite', (descriptorWriteRequest: ble.DescriptorWriteRequest) => {
-        let deviceId: string = descriptorWriteRequest.deviceId;
-        let transId: number = descriptorWriteRequest.transId;
-        let offset: number = descriptorWriteRequest.offset;
-        if (!descriptorWriteRequest.needRsp) {
-          return;
-        }
-        let rspBuffer = new ArrayBuffer(0);
-        let serverResponse: ble.ServerResponse = {
-          deviceId: deviceId,
-          transId: transId,
-          status: 0,
-          offset: offset,
-          value:rspBuffer
-          //value: Utils.string2ArrayBuffer(this.descriptorValue)
-        };
-
-        try {
-          gattServer.sendResponse(serverResponse);
-        } catch (err) {
-          console.error('errCode: ' + (err as BusinessError).code + ', errMessage: ' + (err as BusinessError).message);
-        }
-      });
-    } catch (err) {
-      console.error("errCode:" + (err as BusinessError).code + ",errMessage:" + (err as BusinessError).message);
-    }
-  }
-
-  //server端订阅描述符读取请求事件
-  onDescriptorRead(){
-    let gattServer: ble.GattServer = this.gattServer;
-    function ReadDescriptorReq(descriptorReadRequest: ble.DescriptorReadRequest) {
-      let deviceId: string = descriptorReadRequest.deviceId;
-      let transId: number = descriptorReadRequest.transId;
-      let offset: number = descriptorReadRequest.offset;
-      let descriptorUuid: string = descriptorReadRequest.descriptorUuid;
-      let rspBuffer = new ArrayBuffer(2);
-      let rspValue = new Uint8Array(rspBuffer);
-      rspValue[0] = 31;
-      rspValue[1] = 32;
-      let serverResponse: ble.ServerResponse = {deviceId: deviceId, transId: transId, status: 0, offset: offset, value:rspBuffer};
-      try {
-        gattServer.sendResponse(serverResponse);
-      } catch (err) {
-        console.error('errCode: ' + (err as BusinessError).code + ', errMessage: ' + (err as BusinessError).message);
-      }
-    }
-    gattServer.on('descriptorRead', ReadDescriptorReq);
-  }
 }
 
 class BondRequest {
