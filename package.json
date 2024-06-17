@@ -1,6 +1,6 @@
 {
   "name": "@react-native-oh-tpl/react-native-ble-manager",
-  "version": "11.5.2-0.0.1",
+  "version": "11.5.2-0.0.2",
   "description": "A BLE module for react native.",
   "repository": {
     "type": "git",
@@ -68,6 +68,7 @@
   "dependencies": {
     "react-native-svg": "^15.2.0",
     "react-native-typing-animation": "^0.1.7",
-    "react-native-video-cache": "^2.7.4"
+    "react-native-video-cache": "^2.7.4",
+    "react-native-ble-manager":"11.5.2"
   }
 }
