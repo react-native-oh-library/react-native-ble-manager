@@ -1,10 +1,31 @@
-export type StartOptions = {showAlert?: boolean, restoreIdentifierKey?: string, queueIdentifierKey?: string, forceLegacy?: boolean}
+export type StartOptions = {
+  showAlert?: boolean,
+  restoreIdentifierKey?: string,
+  queueIdentifierKey?: string,
+  forceLegacy?: boolean
+}
 
-export type ScanOptions = {numberOfMatches?: Object, matchMode?: BleScanMatchMode, callbackType?: Object, scanMode?: BleScanMode, reportDelay?: number, phy?: Object, legacy?: boolean, exactAdvertisingName?: string|string[], manufacturerData?: {manufacturerId: number, manufacturerData?: number[], manufacturerDataMask?: number[]}, single?: boolean, companion?: boolean}
+export type ScanOptions = {
+  numberOfMatches?: Object,
+  matchMode?: BleScanMatchMode,
+  callbackType?: Object,
+  scanMode?: BleScanMode,
+  reportDelay?: number,
+  phy?: Object,
+  legacy?: boolean,
+  exactAdvertisingName?: string | string[],
+  manufacturerData?: {
+    manufacturerId: number,
+    manufacturerData?: number[],
+    manufacturerDataMask?: number[]
+  },
+  single?: boolean,
+  companion?: boolean
+}
 
 export type BleConnectPeripheralEvent = {
-  peripheral:string;
-  status?:number;
+  peripheral: string;
+  status?: number;
 }
 
 export type BleStopScanEvent = {
@@ -16,16 +37,16 @@ export type BleManagerDidUpdateStateEvent = {
 }
 
 export type Peripheral = {
-  id:string;
+  id: string;
   rssi: number;
-  name?:string;
-  advertising?:AdvertisingData;
+  name?: string;
+  advertising?: AdvertisingData;
 }
 
 export type AdvertisingData = {
   isConnectable?: boolean;
   localName?: string;
-  rawData?:CustomAdvertisingData;
+  rawData?: CustomAdvertisingData;
 }
 
 export type CustomAdvertisingData = {
@@ -72,7 +93,7 @@ export enum BleState {
   TurningOff = "turning_off",
 }
 
-export type PeripheralInfo  = {
+export type PeripheralInfo = {
   serviceUUIDs?: string[];
   characteristics?: Characteristic[];
   services?: Service[];
@@ -82,6 +103,7 @@ export type Descriptor = {
   value: string;
   uuid: string;
 }
+
 export type Characteristic = {
   /**
    * See https://developer.apple.com/documentation/corebluetooth/cbcharacteristicproperties
@@ -102,6 +124,7 @@ export type Characteristic = {
   service: string;
   descriptors?: Descriptor[];
 }
+
 export type Service = {
   uuid: string;
 }
