@@ -404,19 +404,24 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
   }
 
 
-  retrieveServices(peripheralId: string, serviceUUIDs: string[]): Promise<PeripheralInfo> {
+  retrieveServices(peripheralId: string, serviceUUIDs?: string[]): Promise<PeripheralInfo> {
     let peripheral: PeripheralData = this.retrieveOrCreatePeripheral(peripheralId);
     return new Promise((resolve, reject) => {
       peripheral.retrieveServices(peripheralId, serviceUUIDs).then((result: Array<ble.GattService>) => {
         if (result.length > 0) {
-          const newArray = result.filter(item => {
-            if (item.characteristics[0].descriptors.length > 0) {
-              if (serviceUUIDs.includes(item.serviceUuid) &&
-              serviceUUIDs.includes(item.characteristics[0].descriptors[0].serviceUuid)) {
-                return item;
+          let newArray;
+          if (serviceUUIDs?.length == 0) {
+            newArray = result
+          } else {
+            newArray = result.filter(item => {
+              if (item.characteristics[0].descriptors.length > 0) {
+                if (serviceUUIDs.includes(item.serviceUuid) &&
+                serviceUUIDs.includes(item.characteristics[0].descriptors[0].serviceUuid)) {
+                  return item;
+                }
               }
-            }
-          })
+            })
+          }
           const perinfoServiceUUIDs = [];
           const perinfoCharacteristics = [];
           const perinfoServices = [];
@@ -430,7 +435,10 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
               const character: Characteristic = {
                 characteristic: r.characteristicUuid,
                 service: r.serviceUuid,
-                descriptors: [perinfoDescriptor]
+                descriptors: [perinfoDescriptor],
+                properties: {
+                  Write: r.properties?.write ? "Write" : null
+                }
               }
               perinfoCharacteristics.push(character)
             })
@@ -442,7 +450,7 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
           const perInfo: PeripheralInfo = {
             serviceUUIDs: perinfoServiceUUIDs,
             services: perinfoServices,
-            characteristics: perinfoCharacteristics
+            characteristics: perinfoCharacteristics,
           }
           resolve(perInfo);
         }
@@ -782,7 +790,7 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
 
     try {
       let setting: ble.AdvertiseSetting = {
-        interval: 1600,
+        interval: 150,
         txPower: 0,
         connectable: true,
       };
@@ -811,10 +819,13 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
         advertisingResponse: advResponse,
         duration: 0,
       }
+      let advHandle = 0xFF;
       ble.startAdvertising(advertisingParams, (err, outAdvHandle) => {
         if (err) {
           return;
         } else {
+          advHandle = outAdvHandle;
+          console.log("advHandle: " + advHandle);
           this.addService()
         }
       });
