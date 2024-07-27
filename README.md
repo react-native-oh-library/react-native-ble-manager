@@ -1,71 +1,20 @@
-# react-native-ble-manager
+# @react-native-oh-tpl/react-native-ble-manager
 
-[![npm version](https://img.shields.io/npm/v/react-native-ble-manager.svg?style=flat)](https://www.npmjs.com/package/react-native-ble-manager)
-[![npm downloads](https://img.shields.io/npm/dm/react-native-ble-manager.svg?style=flat)](https://www.npmjs.com/package/react-native-ble-manager)
-[![GitHub issues](https://img.shields.io/github/issues/innoveit/react-native-ble-manager.svg?style=flat)](https://github.com/innoveit/react-native-ble-manager/issues)
+本项目基于 [react-native-ble-manager](https://github.com/innoveit/react-native-ble-manager)
 
-A React Native Bluetooth Low Energy library.
+## 文档地址 / Documentation URL
 
-Originally inspired by https://github.com/don/cordova-plugin-ble-central.
+[中文 / Chinese](https://gitee.com/react-native-oh-library/usage-docs/blob/master/zh-cn/react-native-ble-manager.md)
 
-## Introduction
+[英文 / English](https://gitee.com/react-native-oh-library/usage-docs/blob/master/zh-en/react-native-ble-manager.md)
 
-The library is a simple connection with the OS APIs, the BLE stack should be standard but often has different behaviors based on the device used, the operating system and the BLE chip it connects to. Before opening an issue verify that the problem is really the library.
+## Codegen
 
-## Requirements
+该库已接入 codegen，具体请查阅文档。
 
-RN 0.60+
+The library has been integrated with codegen. Please refer to the documentation for details.
 
-RN 0.40-0.59 supported until 6.7.X
-RN 0.30-0.39 supported until 2.4.3
+## 请悉知 / Acknowledgements
 
-## Supported Platforms
+本项目基于 [The MIT License (MIT)](https://github.com/innoveit/react-native-ble-manager/blob/master/LICENSE) ，请自由地享受和参与开源。
 
-- iOS 10+
-- Android (API 19+)
-
-## Install
-
-```shell
-npm i --save react-native-ble-manager
-```
-
-The library support the react native autolink feature.
-
-## Documentation
-
-Read here [the full documentation](https://innoveit.github.io/react-native-ble-manager/)
-
-
-## Example
-
-The easiest way to test is simple make your AppRegistry point to our example component, like this:
-
-```javascript
-// in your index.ios.js or index.android.js
-import React, { Component } from "react";
-import { AppRegistry } from "react-native";
-import App from "react-native-ble-manager/example/App"; //<-- simply point to the example js!
-/* 
-Note: The react-native-ble-manager/example directory is only included when cloning the repo, the above import will not work 
-if trying to import react-native-ble-manager/example from node_modules
-*/
-AppRegistry.registerComponent("MyAwesomeApp", () => App);
-```
-
-Or, [use the example directly](example)
-
-
-## Library development
-
-- the library is written in typescript and needs to be built before being used for publication or local development, using the provided npm scripts in `package.json`.
-- the local `example` project is configured to work with the locally built version of the library. To be able to run it, you need to build at least once the library so that its outputs listed as entrypoint in `package.json` (in the `dist` folder) are properly generated for consumption by the example project:
-
-from the root folder:
-
-```shell
-npm install
-npm run build
-```
-
-> if you are modifying the typescript files of the library (in `src/`) on the fly, you can run `npm run watch` instead. If you are modifying files from the native counterparts, you'll need to rebuild the whole app for your target environnement (`npm run android/ios`).
