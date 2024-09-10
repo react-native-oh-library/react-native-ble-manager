@@ -1,8 +1,8 @@
 {
-  module: {
-    name: 'ble_manager',
-    type: 'har',
-    deviceTypes: ['default'],
+  "module": {
+    "name": 'ble_manager',
+    "type": 'har',
+    "deviceTypes": ['default'],
   },
 
 }
