@@ -1,6 +1,6 @@
 {
   "name": "@react-native-oh-tpl/react-native-ble-manager",
-  "version": "11.5.2-0.0.3",
+  "version": "11.5.2-0.0.4",
   "description": "A BLE module for react native.",
   "repository": {
     "type": "git",
@@ -58,7 +58,8 @@
   },
   "peerDependencies": {
     "react-native": ">=0.60.0",
-    "react-native-create-thumbnail": "2.0.0"
+    "react-native-create-thumbnail": "2.0.0",
+    "react-native-ble-manager":"11.5.2"
   },
   "devDependencies": {
     "react-native": "0.73.6",
@@ -68,7 +69,6 @@
   "dependencies": {
     "react-native-svg": "^15.2.0",
     "react-native-typing-animation": "^0.1.7",
-    "react-native-video-cache": "^2.7.4",
-    "react-native-ble-manager":"11.5.2"
+    "react-native-video-cache": "^2.7.4"
   }
 }
