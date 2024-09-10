@@ -276,7 +276,6 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
                   return;
                 }
               }
-
               try {
                 const per: PeripheralData = this.retrieveOrCreatePeripheral(peripheralId);
                 let device: ble.GattClientDevice = per.getDevice();
@@ -351,6 +350,7 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
           rssi: peripheralData.getRssi(),
           id: peripheralData.getDeviceId(),
           name: peripheralData.getDeviceName(),
+          advertising:peripheralData.asPeripheral().advertising,
         }
         perList.push(peripheral);
       })
@@ -370,6 +370,7 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
           rssi: peripheralData.getRssi(),
           id: peripheralData.getDeviceId(),
           name: peripheralData.getDeviceName(),
+          advertising:peripheralData.asPeripheral().advertising,
         }
         perList.push(peripheral);
       })
@@ -388,6 +389,7 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
         rssi: item.getRssi(),
         id: item.getDeviceId(),
         name: item.getDeviceName(),
+        advertising:item.asPeripheral().advertising,
       }
       perList.push(peripheral);
     })
@@ -496,12 +498,12 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
 
   start(options: StartOptions): Promise<void> {
     Logger.info("start")
-    this.startAdvertising()
-    this.addService()
-    this.onCharacteristicWrite()
-    this.onCharacteristicRead()
-    this.onDescriptorWrite()
-    this.onDescriptorRead()
+    // this.startAdvertising()
+    // this.addService()
+    // this.onCharacteristicWrite()
+    // this.onCharacteristicRead()
+    // this.onDescriptorWrite()
+    // this.onDescriptorRead()
     this.scanManager = new DefaultScanManager(this.ctx, this)
     access.on('stateChange', this.onStateChange.bind(this));
     connection.on('bondStateChange', this.onBondStateChange.bind(this));
