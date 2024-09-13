@@ -247,54 +247,29 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
   }
 
 
-  write(peripheralId: string, serviceUUID: string, characteristicUUID: string, data: number[],
+  async write(peripheralId: string, serviceUUID: string, characteristicUUID: string, data: number[],
     maxByteSize: number): Promise<void> {
-    let peripheral: PeripheralData = this.retrieveOrCreatePeripheral(peripheralId);
-    return new Promise((resolve, reject) => {
-      peripheral.retrieveServices(peripheralId, [serviceUUID]).then((result: Array<ble.GattService>) => {
-        if (result.length > 0) {
-          result.forEach(services => {
-            if (services.serviceUuid == serviceUUID) {
-              Utils.ArrayBuffer2String(services?.characteristics[0]?.characteristicValue)
-              let descriptors: Array<ble.BLEDescriptor> = [];
-              let descriptor: ble.BLEDescriptor = {
-                serviceUuid: services.serviceUuid,
-                characteristicUuid: characteristicUUID,
-                descriptorUuid: services.characteristics[0].descriptors[0].descriptorUuid,
-                descriptorValue: services.characteristics[0].descriptors[0].descriptorValue
-              };
-              descriptors[0] = descriptor;
-              let characteristic: ble.BLECharacteristic = {
-                serviceUuid: services.serviceUuid,
-                characteristicUuid: characteristicUUID,
-                characteristicValue: new Uint8Array(data).buffer,
-                descriptors: descriptors
-              };
-
-              function writeCharacteristicValueCallBack(code: BusinessError) {
-                if (code != null) {
-                  return;
-                }
-              }
-              try {
-                const per: PeripheralData = this.retrieveOrCreatePeripheral(peripheralId);
-                let device: ble.GattClientDevice = per.getDevice();
-                device.writeCharacteristicValue(characteristic, ble.GattWriteType.WRITE,
-                  writeCharacteristicValueCallBack);
-                resolve();
-              } catch (error) {
-                reject('errCode: ' + (error as BusinessError).code + ', errMessage: ' +
-                (error as BusinessError).message);
-              }
-            }
-          })
-        } else {
-          reject("Write failed");
-        }
-      }).catch(error => {
-        reject(error + "Write failed")
-      })
-    });
+    try {
+      let peripheral: PeripheralData = this.retrieveOrCreatePeripheral(peripheralId);
+      if(serviceUUID === null || characteristicUUID === null) {
+        return Promise.reject('ServiceUUID and characteristicUUID required.')
+      }
+      let result:Array<ble.GattService> = await peripheral.retrieveServices(peripheralId, [serviceUUID]);
+      let gattService:ble.GattService = result.find((gattService) => gattService.serviceUuid === serviceUUID)
+      console.info('gattService =====' + JSON.stringify(gattService))
+      if(gattService === null || gattService === undefined) {
+        return Promise.reject(`serviceUUID + ${serviceUUID} + not found.`)
+      }
+      let characteristic: ble.BLECharacteristic = peripheral.findWritableCharacteristic(gattService,characteristicUUID,ble.GattWriteType.WRITE);
+      if(characteristic === null || characteristic === undefined) {
+        return Promise.reject(`Characteristic + ${characteristicUUID} + not found.`)
+      }
+      let device: ble.GattClientDevice = peripheral.getDevice();
+      device.writeCharacteristicValue(characteristic, ble.GattWriteType.WRITE);
+      return Promise.resolve()
+    } catch (error) {
+      return Promise.reject(error + "Write failed")
+    }
   }
 
 
@@ -498,12 +473,12 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
 
   start(options: StartOptions): Promise<void> {
     Logger.info("start")
-    // this.startAdvertising()
-    // this.addService()
-    // this.onCharacteristicWrite()
-    // this.onCharacteristicRead()
-    // this.onDescriptorWrite()
-    // this.onDescriptorRead()
+    this.startAdvertising()
+    this.addService()
+    this.onCharacteristicWrite()
+    this.onCharacteristicRead()
+    this.onDescriptorWrite()
+    this.onDescriptorRead()
     this.scanManager = new DefaultScanManager(this.ctx, this)
     access.on('stateChange', this.onStateChange.bind(this));
     connection.on('bondStateChange', this.onBondStateChange.bind(this));
@@ -605,7 +580,11 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
   }
 
   stopScan(): Promise<void> {
-    ble.stopBLEScan();
+    try {
+      ble.stopBLEScan();
+    } catch (error) {
+      return Promise.reject('No bluetooth support')
+    }
     this.scanManager.setIsScanning()
     let bleStopScanEvent: BleStopScanEvent = {
       status: 0

@@ -85,6 +85,7 @@ export default class PeripheralData {
     if (!this.connected && this.device) {
       this.onBLEConnectionStateChange(this.device)
       try {
+
         this.device.connect();
         this.connecting = true;
         return true
@@ -129,10 +130,6 @@ export default class PeripheralData {
     return this.connected
   }
 
-  isConnecting() {
-
-  }
-
   readRSSI(): Promise<number> {
     if (!this.isConnected()) {
       return Promise.reject('Device is not connected')
@@ -144,9 +141,13 @@ export default class PeripheralData {
   }
 
   disconnect() {
-    this.connected = false;
-    if (this.device) {
-      this.device.disconnect();
+    try {
+      this.connected = false;
+      if (this.device) {
+        this.device.disconnect();
+      }
+    }catch (error){
+      Logger.error('errCode: ' + (error as BusinessError).code + ', errMessage: ' + (error as BusinessError).message);
     }
   }
 
@@ -169,10 +170,6 @@ export default class PeripheralData {
     if (this.device) {
       this.device.off('BLEConnectionStateChange')
     }
-  }
-
-  getServices() {
-
   }
 
   requestMTU(mtu: number): Promise<number> {
@@ -241,5 +238,24 @@ export default class PeripheralData {
         reject(new Error("failed"));
       }
     });
+  }
+
+  findWritableCharacteristic(gattService:ble.GattService,characteristicUUID: string,writeType:number):ble.BLECharacteristic{
+    let writeProperty = ble.GattWriteType.WRITE;
+    if(writeType == ble.GattWriteType.WRITE_NO_RESPONSE) {
+      writeProperty = ble.GattWriteType.WRITE_NO_RESPONSE
+    }
+    let characteristics: Array<ble.BLECharacteristic> = gattService.characteristics;
+    try {
+      let chara = characteristics.find((characteristic) => {
+        let properties = characteristic.properties?.write ? 1 : 0
+        return ((properties & writeProperty) != 0 && characteristic.characteristicUuid === characteristicUUID) ?
+          characteristic : null
+      })
+      return chara;
+    }catch (error){
+      Logger.error(TAG,"Error on findWritableCharacteristic",error);
+      return null;
+    }
   }
 }
