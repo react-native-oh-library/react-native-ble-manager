@@ -240,6 +240,75 @@ export default class PeripheralData {
     });
   }
 
+  async write(serviceUUID: string, characteristicUUID: string, data:Uint8Array,
+    maxByteSize: number,writeType:number): Promise<void> {
+    if(!this.isConnected || this.device === null) {
+      return Promise.reject('Device is not connected')
+    }
+    let result:Array<ble.GattService> = await this.device.getServices();
+    let gattService:ble.GattService = result.find((gattService) => gattService.serviceUuid === serviceUUID)
+    if(gattService === null || gattService === undefined) {
+      return Promise.reject(`serviceUUID + ${serviceUUID} + not found.`)
+    }
+    let characteristic: ble.BLECharacteristic = this.findWritableCharacteristic(gattService,characteristicUUID,writeType);
+    if(characteristic === null || characteristic === undefined) {
+      return Promise.reject(`Characteristic + ${characteristicUUID} + not found.`)
+    }
+    if(data.length <= maxByteSize) {
+      if(!this.doWrite(characteristic,new Uint8Array(data))) {
+        return Promise.reject("Write failed")
+      } else {
+        return Promise.resolve();
+      }
+    } else {
+      let dataLength = data.length;
+      let count = 0;
+      let firstMessage:Uint8Array = null;
+      const splittedMessage  = [];
+      while (count < dataLength && (dataLength -count)> maxByteSize) {
+        if(count == 0) {
+          //处理第一个信息
+          firstMessage = new Uint8Array(data).subarray(count, count + maxByteSize);
+        } else {
+          //将其分割数据添加到列表
+          splittedMessage.push(new Uint8Array(data).subarray(count,count + maxByteSize))
+        }
+        count += maxByteSize;
+      }
+      if(count < dataLength) {
+        splittedMessage.push(new Uint8Array(data).subarray(count, data.length))
+      }
+      //harmonyOS 默认writeType ==  ble.GattWriteType.WRITE
+      let writeError:boolean = false;
+      if(!this.doWrite(characteristic,firstMessage)) {
+        writeError = true;
+        return Promise.reject('Write failed')
+      }
+      if(!writeError) {
+        for (let i = 0;i< splittedMessage.length;i++) {
+          let message = splittedMessage[i];
+          if(!this.doWrite(characteristic,message)) {
+            writeError = true;
+            return Promise.reject('Write failed')
+          }
+        }
+      }
+    }
+    return Promise.resolve();
+  }
+
+  doWrite(characteristic: ble.BLECharacteristic,data:Uint8Array):boolean{
+    try {
+      characteristic.characteristicValue = data.buffer;
+      this.device.writeCharacteristicValue(characteristic,ble.GattWriteType.WRITE)
+      return true;
+    } catch (error) {
+      console.info('Write failed ：' + JSON.stringify(error))
+      return false;
+    }
+  }
+
+
   findWritableCharacteristic(gattService:ble.GattService,characteristicUUID: string,writeType:number):ble.BLECharacteristic{
     let writeProperty = ble.GattWriteType.WRITE;
     if(writeType == ble.GattWriteType.WRITE_NO_RESPONSE) {
