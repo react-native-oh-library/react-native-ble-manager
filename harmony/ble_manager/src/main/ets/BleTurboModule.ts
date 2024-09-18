@@ -249,23 +249,16 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
 
   async write(peripheralId: string, serviceUUID: string, characteristicUUID: string, data: number[],
     maxByteSize: number): Promise<void> {
+    if(serviceUUID === null || characteristicUUID === null) {
+      return Promise.reject('ServiceUUID and characteristicUUID required.')
+    }
     try {
-      let peripheral: PeripheralData = this.retrieveOrCreatePeripheral(peripheralId);
-      if(serviceUUID === null || characteristicUUID === null) {
-        return Promise.reject('ServiceUUID and characteristicUUID required.')
+      let peripheral = this.peripherals.get(peripheralId);
+      if (peripheral) {
+        peripheral.write(serviceUUID,characteristicUUID,new Uint8Array(data),maxByteSize,ble.GattWriteType.WRITE);
+      } else {
+        return Promise.reject('Peripheral not found')
       }
-      let result:Array<ble.GattService> = await peripheral.retrieveServices(peripheralId, [serviceUUID]);
-      let gattService:ble.GattService = result.find((gattService) => gattService.serviceUuid === serviceUUID)
-      console.info('gattService =====' + JSON.stringify(gattService))
-      if(gattService === null || gattService === undefined) {
-        return Promise.reject(`serviceUUID + ${serviceUUID} + not found.`)
-      }
-      let characteristic: ble.BLECharacteristic = peripheral.findWritableCharacteristic(gattService,characteristicUUID,ble.GattWriteType.WRITE);
-      if(characteristic === null || characteristic === undefined) {
-        return Promise.reject(`Characteristic + ${characteristicUUID} + not found.`)
-      }
-      let device: ble.GattClientDevice = peripheral.getDevice();
-      device.writeCharacteristicValue(characteristic, ble.GattWriteType.WRITE);
       return Promise.resolve()
     } catch (error) {
       return Promise.reject(error + "Write failed")
@@ -714,8 +707,7 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
     if (peripheralData === null || peripheralData === undefined) {
       if (peripheralId) {
         peripheralId = peripheralId.toLowerCase();
-      }
-      ;
+      };
       if (this.isBluetoothAddress(peripheralId)) {
         try {
           let device: ble.GattClientDevice = ble.createGattClientDevice(peripheralId);
