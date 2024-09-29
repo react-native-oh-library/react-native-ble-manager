@@ -240,54 +240,58 @@ export default class PeripheralData {
     });
   }
 
-  async write(serviceUUID: string, characteristicUUID: string, data:Uint8Array,
-    maxByteSize: number,writeType:number): Promise<void> {
-    if(!this.isConnected || this.device === null) {
+  //修改后
+  async write(serviceUUID: string, characteristicUUID: string, data: Uint8Array,
+    maxByteSize: number, writeType: number): Promise<void> {
+    if (!this.isConnected || this.device === null) {
       return Promise.reject('Device is not connected')
     }
-    let result:Array<ble.GattService> = await this.device.getServices();
-    let gattService:ble.GattService = result.find((gattService) => gattService.serviceUuid === serviceUUID)
-    if(gattService === null || gattService === undefined) {
+    let result: Array<ble.GattService> = await this.device.getServices();
+    let gattService: ble.GattService = result.find((gattService) => gattService.serviceUuid === serviceUUID)
+    if (gattService === null || gattService === undefined) {
       return Promise.reject(`serviceUUID + ${serviceUUID} + not found.`)
     }
-    let characteristic: ble.BLECharacteristic = this.findWritableCharacteristic(gattService,characteristicUUID,writeType);
-    if(characteristic === null || characteristic === undefined) {
+    let characteristic: ble.BLECharacteristic =
+      this.findWritableCharacteristic(gattService, characteristicUUID, writeType);
+    if (characteristic === null || characteristic === undefined) {
       return Promise.reject(`Characteristic + ${characteristicUUID} + not found.`)
     }
-    if(data.length <= maxByteSize) {
-      if(!this.doWrite(characteristic,new Uint8Array(data))) {
+    const uint8Data = data
+    if (data.length <= maxByteSize) {
+      const isDoWriteSuccess = await this.doWrite(characteristic, uint8Data.buffer);
+      if (!isDoWriteSuccess) {
         return Promise.reject("Write failed")
       } else {
         return Promise.resolve();
       }
     } else {
-      let dataLength = data.length;
+      let dataLength = uint8Data.buffer.byteLength;
       let count = 0;
-      let firstMessage:Uint8Array = null;
-      const splittedMessage  = [];
-      while (count < dataLength && (dataLength -count)> maxByteSize) {
-        if(count == 0) {
-          //处理第一个信息
-          firstMessage = new Uint8Array(data).subarray(count, count + maxByteSize);
+      let firstMessage: ArrayBuffer = null;
+      const splittedMessage = [];
+      while (count < dataLength && (dataLength - count > maxByteSize)) {
+        if (count == 0) {
+          firstMessage = uint8Data.buffer.slice(count, count + maxByteSize);
         } else {
-          //将其分割数据添加到列表
-          splittedMessage.push(new Uint8Array(data).subarray(count,count + maxByteSize))
+          splittedMessage.push(uint8Data.buffer.slice(count, count + maxByteSize))
         }
         count += maxByteSize;
       }
-      if(count < dataLength) {
-        splittedMessage.push(new Uint8Array(data).subarray(count, data.length))
+      if (count < dataLength) {
+        splittedMessage.push(uint8Data.buffer.slice(count, dataLength))
       }
       //harmonyOS 默认writeType ==  ble.GattWriteType.WRITE
-      let writeError:boolean = false;
-      if(!this.doWrite(characteristic,firstMessage)) {
+      let writeError: boolean = false;
+      const isDoWriteSuccess = await this.doWrite(characteristic, firstMessage);
+      if (!isDoWriteSuccess) {
         writeError = true;
         return Promise.reject('Write failed')
       }
-      if(!writeError) {
-        for (let i = 0;i< splittedMessage.length;i++) {
+      if (!writeError) {
+        for (let i = 0; i < splittedMessage.length; i++) {
           let message = splittedMessage[i];
-          if(!this.doWrite(characteristic,message)) {
+          const isDoWriteSuccess = await this.doWrite(characteristic, message);
+          if (!isDoWriteSuccess) {
             writeError = true;
             return Promise.reject('Write failed')
           }
@@ -297,14 +301,13 @@ export default class PeripheralData {
     return Promise.resolve();
   }
 
-  doWrite(characteristic: ble.BLECharacteristic,data:Uint8Array):boolean{
+  doWrite(characteristic: ble.BLECharacteristic, buffer: ArrayBuffer): Promise<boolean> {
     try {
-      characteristic.characteristicValue = data.buffer;
-      this.device.writeCharacteristicValue(characteristic,ble.GattWriteType.WRITE)
-      return true;
+      characteristic.characteristicValue = buffer;
+      return this.device.writeCharacteristicValue(characteristic, ble.GattWriteType.WRITE).then(() => true).catch(() => false)
     } catch (error) {
       console.info('Write failed ：' + JSON.stringify(error))
-      return false;
+      return Promise.resolve(false);
     }
   }
 
