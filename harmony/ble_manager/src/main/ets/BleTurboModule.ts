@@ -255,11 +255,10 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
     try {
       let peripheral = this.peripherals.get(peripheralId);
       if (peripheral) {
-        peripheral.write(serviceUUID,characteristicUUID,new Uint8Array(data),maxByteSize,ble.GattWriteType.WRITE);
+        return peripheral.write(serviceUUID,characteristicUUID,new Uint8Array(data),maxByteSize,ble.GattWriteType.WRITE);
       } else {
         return Promise.reject('Peripheral not found')
       }
-      return Promise.resolve()
     } catch (error) {
       return Promise.reject(error + "Write failed")
     }
