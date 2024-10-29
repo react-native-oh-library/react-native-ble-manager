@@ -6,13 +6,7 @@
 
 [中文 / Chinese](https://gitee.com/react-native-oh-library/usage-docs/blob/master/zh-cn/react-native-ble-manager.md)
 
-[英文 / English](https://gitee.com/react-native-oh-library/usage-docs/blob/master/zh-en/react-native-ble-manager.md)
-
-## Codegen
-
-该库已接入 codegen，具体请查阅文档。
-
-The library has been integrated with codegen. Please refer to the documentation for details.
+[英文 / English](https://gitee.com/react-native-oh-library/usage-docs/blob/master/en/react-native-ble-manager.md)
 
 ## 请悉知 / Acknowledgements
 
