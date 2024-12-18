@@ -1,0 +1,11 @@
+[
+    {
+        "Name": "react-native-ble-manager",
+        "License": "Apache License",
+        "License File": "https://github.com/innoveit/react-native-ble-manager/blob/master/LICENSE",
+        "Version Number": "11.5.2",
+        "Owner" : "xiafeng@huawei.com",
+        "Upstream URL": "https://github.com/innoveit/react-native-ble-manager",
+        "Description": "A BLE module for react native."
+    }
+]

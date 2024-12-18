@@ -15,11 +15,13 @@ import {
 } from "./types";
 
 export * from "./types";
+import ReactNativeBleManager from './NativeGeneratedBleManagerTurboModule'
 
-let bleManager = NativeModules.BleManager;
+let bleManager = ReactNativeBleManager;
 
 class BleManager extends NativeEventEmitter {
   constructor() {
+    // @ts-ignore
     super(bleManager);
     this.isPeripheralConnected = this.isPeripheralConnected.bind(this);
   }
@@ -37,15 +39,12 @@ class BleManager extends NativeEventEmitter {
         peripheralId,
         serviceUUID,
         characteristicUUID,
-        (error: string | null, data: number[]) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill(data);
-          }
-        }
-      );
-    });
+      ).then((data: number[]) => {
+        fulfill(data);
+      }).catch((error) => {
+        reject(error);
+      });
+    })
   }
 
   /**
@@ -68,14 +67,11 @@ class BleManager extends NativeEventEmitter {
         serviceUUID,
         characteristicUUID,
         descriptorUUID,
-        (error: string | null, data: number[]) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill(data);
-          }
-        }
-      );
+      ).then((data: number[]) => {
+        fulfill(data);
+      }).catch((error) => {
+        reject(error);
+      });
     });
   }
 
@@ -102,14 +98,11 @@ class BleManager extends NativeEventEmitter {
         characteristicUUID,
         descriptorUUID,
         data,
-        (error: string | null) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill();
-          }
-        }
-      );
+      ).then(() => {
+        fulfill();
+      }).catch((error) => {
+        reject(error);
+      });
     });
   }
 
@@ -122,14 +115,11 @@ class BleManager extends NativeEventEmitter {
     return new Promise<number>((fulfill, reject) => {
       bleManager.readRSSI(
         peripheralId,
-        (error: string | null, rssi: number) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill(rssi);
-          }
-        }
-      );
+      ).then((rssi: number) => {
+        fulfill(rssi);
+      }).catch((error) => {
+        reject(error);
+      });
     });
   }
 
@@ -141,15 +131,12 @@ class BleManager extends NativeEventEmitter {
   refreshCache(peripheralId: string) {
     return new Promise<boolean>((fulfill, reject) => {
       bleManager.refreshCache(
-        peripheralId,
-        (error: string | null, result: boolean) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill(result);
-          }
-        }
-      );
+        peripheralId
+      ).then(() => {
+        console.log('harmony is not support')
+      }).catch((error) => {
+        reject(error)
+      });
     });
   }
 
@@ -164,15 +151,12 @@ class BleManager extends NativeEventEmitter {
       bleManager.retrieveServices(
         peripheralId,
         serviceUUIDs,
-        (error: string | null, peripheral: PeripheralInfo) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill(peripheral);
-          }
-        }
-      );
-    });
+      ).then((peripheral: PeripheralInfo) => {
+        fulfill(peripheral);
+      }).catch((error) => {
+        reject(error);
+      });
+    })
   }
 
   /**
@@ -185,29 +169,26 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   write(
-    peripheralId: string,
-    serviceUUID: string,
-    characteristicUUID: string,
-    data: number[],
-    maxByteSize: number = 20
-  ) {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.write(
-        peripheralId,
-        serviceUUID,
-        characteristicUUID,
-        data,
-        maxByteSize,
-        (error: string | null) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill();
-          }
-        }
-      );
-    });
-  }
+      peripheralId: string,
+      serviceUUID: string,
+      characteristicUUID: string,
+      data: number[],
+      maxByteSize: number = 20
+    ) {
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.write(
+          peripheralId,
+          serviceUUID,
+          characteristicUUID,
+          data,
+          maxByteSize,
+        ).then(() => {
+          fulfill();
+        }).catch((error)=>{
+          reject(error);
+        });
+      });
+    }
 
   /**
    *
@@ -220,46 +201,41 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   writeWithoutResponse(
-    peripheralId: string,
-    serviceUUID: string,
-    characteristicUUID: string,
-    data: number[],
-    maxByteSize: number = 20,
-    queueSleepTime: number = 10
-  ) {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.writeWithoutResponse(
-        peripheralId,
-        serviceUUID,
-        characteristicUUID,
-        data,
-        maxByteSize,
-        queueSleepTime,
-        (error: string | null) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill();
-          }
-        }
-      );
-    });
-  }
-
-  connect(peripheralId: string, options?: ConnectOptions) {
-    return new Promise<void>((fulfill, reject) => {
-      if (!options) {
-        options = {};
-      }
-      bleManager.connect(peripheralId, options, (error: string | null) => {
-        if (error) {
+      peripheralId: string,
+      serviceUUID: string,
+      characteristicUUID: string,
+      data: number[],
+      maxByteSize: number = 20,
+      queueSleepTime: number = 10
+    ) {
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.writeWithoutResponse(
+          peripheralId,
+          serviceUUID,
+          characteristicUUID,
+          data,
+          maxByteSize,
+          queueSleepTime,
+        ).then(() => {
+          console.log('harmony is not support')
+        }).catch((error)=>{
           reject(error);
-        } else {
-          fulfill();
-        }
+        });
       });
-    });
-  }
+    }
+
+  connect(peripheralId: string, options ?: ConnectOptions) {
+      return new Promise<void>((fulfill, reject) => {
+        if (!options) {
+          options = {};
+        }
+        bleManager.connect(peripheralId, options).then(() => {
+          fulfill();
+        }).catch((error)=>{
+          reject(error);
+        });
+      });
+    }
 
   /**
    * [Android only]
@@ -268,20 +244,17 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   createBond(peripheralId: string, peripheralPin: string | null = null) {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.createBond(
-        peripheralId,
-        peripheralPin,
-        (error: string | null) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill();
-          }
-        }
-      );
-    });
-  }
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.createBond(
+          peripheralId,
+          peripheralPin,
+        ).then(() => {
+          fulfill();
+        }).catch((error)=>{
+          reject(error);
+        });
+      });
+    }
 
   /**
    * [Android only]
@@ -289,16 +262,14 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   removeBond(peripheralId: string) {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.removeBond(peripheralId, (error: string | null) => {
-        if (error) {
-          reject(error);
-        } else {
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.removeBond(peripheralId).then(() => {
           fulfill();
-        }
+        }).catch((error)=>{
+          reject(error);
+        });
       });
-    });
-  }
+    }
 
   /**
    *
@@ -307,37 +278,32 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   disconnect(peripheralId: string, force: boolean = true) {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.disconnect(peripheralId, force, (error: string | null) => {
-        if (error) {
-          reject(error);
-        } else {
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.disconnect(peripheralId, force).then(() => {
           fulfill();
-        }
+        }).catch((error)=>{
+          reject(error);
+        });
       });
-    });
-  }
+    }
 
   startNotification(
-    peripheralId: string,
-    serviceUUID: string,
-    characteristicUUID: string
-  ) {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.startNotification(
-        peripheralId,
-        serviceUUID,
-        characteristicUUID,
-        (error: string | null) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill();
-          }
-        }
-      );
-    });
-  }
+      peripheralId: string,
+      serviceUUID: string,
+      characteristicUUID: string
+    ) {
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.startNotification(
+          peripheralId,
+          serviceUUID,
+          characteristicUUID,
+        ).then(() => {
+          fulfill();
+        }).catch((error)=>{
+          reject(error);
+        });
+      });
+    }
 
   /**
    * [Android only]
@@ -348,71 +314,63 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   startNotificationUseBuffer(
-    peripheralId: string,
-    serviceUUID: string,
-    characteristicUUID: string,
-    buffer: number
-  ) {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.startNotificationUseBuffer(
-        peripheralId,
-        serviceUUID,
-        characteristicUUID,
-        buffer,
-        (error: string | null) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill();
-          }
-        }
-      );
-    });
-  }
+      peripheralId: string,
+      serviceUUID: string,
+      characteristicUUID: string,
+      buffer: number
+    ) {
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.startNotificationUseBuffer(
+          peripheralId,
+          serviceUUID,
+          characteristicUUID,
+          buffer
+        ).then(() => {
+          console.log('harmony is not support')
+        }).catch((error)=>{
+          reject(error)
+        });
+      });
+    }
 
   stopNotification(
-    peripheralId: string,
-    serviceUUID: string,
-    characteristicUUID: string
-  ) {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.stopNotification(
-        peripheralId,
-        serviceUUID,
-        characteristicUUID,
-        (error: string | null) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill();
-          }
-        }
-      );
-    });
-  }
+      peripheralId: string,
+      serviceUUID: string,
+      characteristicUUID: string
+    ) {
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.stopNotification(
+          peripheralId,
+          serviceUUID,
+          characteristicUUID
+        ).then(() => {
+          console.log('harmony is not support')
+        }).catch((error)=>{
+          reject(error)
+        });
+      });
+    }
 
   checkState() {
-    return new Promise<BleState>((fulfill, _) => {
-      bleManager.checkState((state: BleState) => {
-        fulfill(state);
+      return new Promise<BleState>((fulfill, _) => {
+        bleManager.checkState().then((state: BleState) => {
+          fulfill(state);
+        });
       });
-    });
-  }
+    }
 
-  start(options?: StartOptions) {
-    return new Promise<void>((fulfill, reject) => {
-      if (options == null) {
-        options = {};
-      }
-      bleManager.start(options, (error: string | null) => {
-        if (error) {
-          reject(error);
-        } else {
-          fulfill();
+  start(options ?: StartOptions) {
+      return new Promise<void>((fulfill, reject) => {
+        if (options == null) {
+          options = {};
         }
+        bleManager.start(options).then(() => {
+          fulfill();
+        }).catch((error)=>{
+          reject(error);
+        });
       });
-    });
-  }
+    }
 
   /**
    *
@@ -423,100 +381,93 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   scan(
-    serviceUUIDs: string[],
-    seconds: number,
-    allowDuplicates?: boolean,
-    scanningOptions: ScanOptions = {}
-  ) {
-    return new Promise<void>((fulfill, reject) => {
-      if (allowDuplicates == null) {
-        allowDuplicates = false;
-      }
-
-      // (ANDROID) Match as many advertisement per filter as hw could allow
-      // depends on current capability and availability of the resources in hw.
-      if (scanningOptions.numberOfMatches == null) {
-        scanningOptions.numberOfMatches = BleScanMatchCount.MaxAdvertisements;
-      }
-
-      // (ANDROID) Defaults to MATCH_MODE_AGGRESSIVE
-      if (scanningOptions.matchMode == null) {
-        scanningOptions.matchMode = BleScanMatchMode.Aggressive;
-      }
-
-      // (ANDROID) Defaults to SCAN_MODE_LOW_POWER
-      if (scanningOptions.scanMode == null) {
-        scanningOptions.scanMode = BleScanMode.LowPower;
-      }
-
-      // (ANDROID) Defaults to CALLBACK_TYPE_ALL_MATCHES
-      // WARN: sometimes, setting a scanSetting instead of leaving it untouched might result in unexpected behaviors.
-      // https://github.com/dariuszseweryn/RxAndroidBle/issues/462
-      if (scanningOptions.callbackType == null) {
-        scanningOptions.callbackType = BleScanCallbackType.AllMatches;
-      }
-
-      // (ANDROID) Defaults to 0ms (report results immediately).
-      if (scanningOptions.reportDelay == null) {
-        scanningOptions.reportDelay = 0;
-      }
-
-      // In Android ScanFilter used to restrict search to devices with a specific advertising name.
-      // https://developer.android.com/reference/android/bluetooth/le/ScanFilter.Builder#setDeviceName(java.lang.String)
-      // In iOS, this is a whole word match, not a partial search.
-      if (!scanningOptions.exactAdvertisingName) {
-        delete scanningOptions.exactAdvertisingName;
-      } else {
-        if (typeof scanningOptions.exactAdvertisingName === "string") {
-          scanningOptions.exactAdvertisingName = [
-            scanningOptions.exactAdvertisingName,
-          ];
+      serviceUUIDs: string[],
+      seconds: number,
+      allowDuplicates ?: boolean,
+      scanningOptions: ScanOptions = {}
+    ) {
+      return new Promise<void>((fulfill, reject) => {
+        if (allowDuplicates == null) {
+          allowDuplicates = false;
         }
-      }
 
-      bleManager.scan(
-        serviceUUIDs,
-        seconds,
-        allowDuplicates,
-        scanningOptions,
-        (error: string | null) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill();
+        // (ANDROID) Match as many advertisement per filter as hw could allow
+        // depends on current capability and availability of the resources in hw.
+        if (scanningOptions.numberOfMatches == null) {
+          scanningOptions.numberOfMatches = BleScanMatchCount.MaxAdvertisements;
+        }
+
+        // (ANDROID) Defaults to MATCH_MODE_AGGRESSIVE
+        if (scanningOptions.matchMode == null) {
+          scanningOptions.matchMode = BleScanMatchMode.Aggressive;
+        }
+
+        // (ANDROID) Defaults to SCAN_MODE_LOW_POWER
+        if (scanningOptions.scanMode == null) {
+          scanningOptions.scanMode = BleScanMode.LowPower;
+        }
+
+        // (ANDROID) Defaults to CALLBACK_TYPE_ALL_MATCHES
+        // WARN: sometimes, setting a scanSetting instead of leaving it untouched might result in unexpected behaviors.
+        // https://github.com/dariuszseweryn/RxAndroidBle/issues/462
+        if (scanningOptions.callbackType == null) {
+          scanningOptions.callbackType = BleScanCallbackType.AllMatches;
+        }
+
+        // (ANDROID) Defaults to 0ms (report results immediately).
+        if (scanningOptions.reportDelay == null) {
+          scanningOptions.reportDelay = 0;
+        }
+
+        // In Android ScanFilter used to restrict search to devices with a specific advertising name.
+        // https://developer.android.com/reference/android/bluetooth/le/ScanFilter.Builder#setDeviceName(java.lang.String)
+        // In iOS, this is a whole word match, not a partial search.
+        if (!scanningOptions.exactAdvertisingName) {
+          delete scanningOptions.exactAdvertisingName;
+        } else {
+          if (typeof scanningOptions.exactAdvertisingName === "string") {
+            scanningOptions.exactAdvertisingName = [
+              scanningOptions.exactAdvertisingName,
+            ];
           }
         }
-      );
-    });
-  }
+
+        bleManager.scan(
+          serviceUUIDs,
+          seconds,
+          allowDuplicates,
+          scanningOptions,
+        ).then(() => {
+          fulfill();
+        }).catch((error)=>{
+          reject(error);
+        });
+      });
+    }
 
   stopScan() {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.stopScan((error: string | null) => {
-        if (error) {
-          reject(error);
-        } else {
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.stopScan().then(() => {
           fulfill();
-        }
+        }).catch((error)=>{
+          reject(error);
+        });
       });
-    });
-  }
+    }
 
   /**
    * [Android only] triggers an ENABLE_REQUEST intent to the end-user to enable bluetooth.
    * @returns
    */
   enableBluetooth() {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.enableBluetooth((error: string | null) => {
-        if (error) {
-          reject(error);
-        } else {
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.enableBluetooth().then(() => {
           fulfill();
-        }
+        }).catch((error)=>{
+          reject(error);
+        });
       });
-    });
-  }
+    }
 
   /**
    *
@@ -524,63 +475,48 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   getConnectedPeripherals(serviceUUIDs: string[] = []) {
-    return new Promise<Peripheral[]>((fulfill, reject) => {
-      bleManager.getConnectedPeripherals(
-        serviceUUIDs,
-        (error: string | null, result: Peripheral[] | null) => {
-          if (error) {
-            reject(error);
-          } else {
-            if (result) {
-              fulfill(result);
-            } else {
-              fulfill([]);
-            }
-          }
-        }
-      );
-    });
-  }
+      return new Promise<Peripheral[]>((fulfill, reject) => {
+        bleManager.getConnectedPeripherals(
+          serviceUUIDs,
+        ).then((result: Peripheral[]) => {
+          fulfill(result)
+        }).catch((error) => {
+          reject(error)
+        });
+      });
+    }
 
   /**
    * [Android only]
    * @returns
    */
   getBondedPeripherals() {
-    return new Promise<Peripheral[]>((fulfill, reject) => {
-      bleManager.getBondedPeripherals(
-        (error: string | null, result: Peripheral[] | null) => {
-          if (error) {
-            reject(error);
+      return new Promise<Peripheral[]>((fulfill, reject) => {
+        bleManager.getBondedPeripherals().then((result: Peripheral[] | null) => {
+          if (result) {
+            fulfill(result);
           } else {
-            if (result) {
-              fulfill(result);
-            } else {
-              fulfill([]);
-            }
+            fulfill([]);
           }
-        }
-      );
-    });
-  }
+        }).catch((error)=>{
+          reject(error);
+        });
+      });
+    }
 
   getDiscoveredPeripherals() {
-    return new Promise<Peripheral[]>((fulfill, reject) => {
-      bleManager.getDiscoveredPeripherals(
-        (error: string | null, result: Peripheral[] | null) => {
-          if (error) {
-            reject(error);
+      return new Promise<Peripheral[]>((fulfill, reject) => {
+        bleManager.getDiscoveredPeripherals().then((result: Peripheral[] | null) => {
+          if (result) {
+            fulfill(result);
           } else {
-            if (result) {
-              fulfill(result);
-            } else {
-              fulfill([]);
-            }
+            fulfill([]);
           }
-        }
-      );
-    });
-  }
+        }).catch((error)=>{
+          reject(error);
+        });
+      });
+    }
 
   /**
    * [Android only]
@@ -588,16 +524,14 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   removePeripheral(peripheralId: string) {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.removePeripheral(peripheralId, (error: string | null) => {
-        if (error) {
-          reject(error);
-        } else {
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.removePeripheral(peripheralId).then(() => {
           fulfill();
-        }
+        }).catch((error)=>{
+          reject(error);
+        });
       });
-    });
-  }
+    }
 
   /**
    * @param peripheralId
@@ -605,14 +539,14 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   isPeripheralConnected(peripheralId: string, serviceUUIDs: string[] = []) {
-    return this.getConnectedPeripherals(serviceUUIDs).then((result) => {
-      if (result.find((p) => p.id === peripheralId)) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-  }
+      return this.getConnectedPeripherals(serviceUUIDs).then((result) => {
+        if (result.find((p) => p.id === peripheralId)) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    }
 
   /**
    * @param peripheralId
@@ -620,16 +554,14 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   isScanning() {
-    return new Promise<boolean>((fulfill, reject) => {
-      bleManager.isScanning((error: string | null, status: boolean) => {
-        if (error) {
-          reject(error);
-        } else {
+      return new Promise<boolean>((fulfill, reject) => {
+        bleManager.isScanning().then((status: boolean) => {
           fulfill(status);
-        }
+        }).catch((error)=>{
+          reject(error);
+        });
       });
-    });
-  }
+    }
 
   /**
    * [Android only, API 21+]
@@ -638,23 +570,18 @@ class BleManager extends NativeEventEmitter {
    * @returns a promise that resolves with a boolean indicating of the connection priority was changed successfully, or rejects with an error message.
    */
   requestConnectionPriority(
-    peripheralId: string,
-    connectionPriority: ConnectionPriority
-  ) {
-    return new Promise<boolean>((fulfill, reject) => {
-      bleManager.requestConnectionPriority(
-        peripheralId,
-        connectionPriority,
-        (error: string | null, status: boolean) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill(status);
-          }
-        }
-      );
-    });
-  }
+      peripheralId: string,
+      connectionPriority: ConnectionPriority
+    ) {
+      return new Promise<boolean>((fulfill, reject) => {
+        bleManager.requestConnectionPriority(
+          peripheralId,
+          connectionPriority,
+        ).then(() => {
+          console.log('harmony is not support')
+        });
+      });
+    }
 
   /**
    * [Android only, API 21+]
@@ -663,20 +590,17 @@ class BleManager extends NativeEventEmitter {
    * @returns a promise resolving with the negotiated MTU if it succeeded. Beware that it might not be the one requested due to device's BLE limitations on both side of the negotiation.
    */
   requestMTU(peripheralId: string, mtu: number) {
-    return new Promise<number>((fulfill, reject) => {
-      bleManager.requestMTU(
-        peripheralId,
-        mtu,
-        (error: string | null, mtu: number) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill(mtu);
-          }
-        }
-      );
-    });
-  }
+      return new Promise<number>((fulfill, reject) => {
+        bleManager.requestMTU(
+          peripheralId,
+          mtu
+        ).then((mtu: number) => {
+          fulfill(mtu);
+        }).catch((error)=>{
+          reject(error);
+        });
+      });
+    }
 
   /**
    * [Android only, API 26+]
@@ -684,16 +608,12 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   getAssociatedPeripherals() {
-    return new Promise<Peripheral[]>((fulfill, reject) => {
-      bleManager.getAssociatedPeripherals((error: string | null, peripherals: Peripheral[] | null) => {
-        if (error) {
-          reject(error);
-        } else {
-          fulfill(peripherals || []);
-        }
+      return new Promise<Peripheral[]>((fulfill, reject) => {
+        bleManager.getAssociatedPeripherals().then(() => {
+          console.log('harmony is not support')
+        });
       });
-    });
-  }
+    }
 
   /**
    * [Android only, API 26+]
@@ -702,16 +622,12 @@ class BleManager extends NativeEventEmitter {
    *          if no association is found.
    */
   removeAssociatedPeripheral(peripheralId: string) {
-    return new Promise<void>((fulfill, reject) => {
-      bleManager.removeAssociatedPeripheral(peripheralId, (error: string | null) => {
-        if (error !== null) {
-          reject(error);
-        } else {
-          fulfill();
-        }
+      return new Promise<void>((fulfill, reject) => {
+        bleManager.removeAssociatedPeripheral(peripheralId).then(() => {
+          console.log('harmony is not support')
+        });
       });
-    });
-  }
+    }
 
   /**
    * [Android only]
@@ -721,10 +637,12 @@ class BleManager extends NativeEventEmitter {
    * @return Promise resolving to a boolean.
    */
   supportsCompanion() {
-    return new Promise<boolean>(fulfill => {
-      bleManager.supportsCompanion((supports: boolean) => fulfill(supports));
-    });
-  }
+      return new Promise<boolean>(fulfill => {
+        bleManager.supportsCompanion().then(() => {
+          console.log('harmony is not support')
+        });
+      });
+    }
 
   /**
    * [Android only, API 26+]
@@ -732,27 +650,23 @@ class BleManager extends NativeEventEmitter {
    * Start companion scan.
    */
   companionScan(
-    serviceUUIDs: string[],
-    options: CompanionScanOptions = {}
-  ) {
-    return new Promise<Peripheral | null>((fulfill, reject) => {
-      bleManager.companionScan(serviceUUIDs, options, (error: string | null, peripheral: Peripheral | null) => {
-        if (error) {
-          reject(error)
-        } else {
-          fulfill(peripheral);
-        }
+      serviceUUIDs: string[],
+      options: CompanionScanOptions = {}
+    ) {
+      return new Promise<Peripheral | null>((fulfill, reject) => {
+        bleManager.companionScan(serviceUUIDs, options).then(() => {
+          console.log('harmony is not support')
+        });
       });
-    });
-  }
+    }
 
   /**
    * [Android only]
    * @param name
    */
   setName(name: string) {
-    bleManager.setName(name);
-  }
+      bleManager.setName('harmony is not support');
+    }
 
   /**
    * [iOS only]
@@ -760,19 +674,14 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   getMaximumWriteValueLengthForWithoutResponse(peripheralId: string) {
-    return new Promise<number>((fulfill, reject) => {
-      bleManager.getMaximumWriteValueLengthForWithoutResponse(
-        peripheralId,
-        (error: string | null, max: number) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill(max);
-          }
-        }
-      );
-    });
-  }
+      return new Promise<number>((fulfill, reject) => {
+        bleManager.getMaximumWriteValueLengthForWithoutResponse(
+          peripheralId
+        ).then(() => {
+          console.log('harmony is not support')
+        });
+      });
+    }
 
   /**
    * [iOS only]
@@ -780,19 +689,14 @@ class BleManager extends NativeEventEmitter {
    * @returns
    */
   getMaximumWriteValueLengthForWithResponse(peripheralId: string) {
-    return new Promise<number>((fulfill, reject) => {
-      bleManager.getMaximumWriteValueLengthForWithResponse(
-        peripheralId,
-        (error: string | null, max: number) => {
-          if (error) {
-            reject(error);
-          } else {
-            fulfill(max);
-          }
-        }
-      );
-    });
-  }
+      return new Promise<number>((fulfill, reject) => {
+        bleManager.getMaximumWriteValueLengthForWithResponse(
+          peripheralId
+        ).then(() => {
+          console.log('harmony is not support')
+        });
+      });
+    }
 }
 
 export default new BleManager();
