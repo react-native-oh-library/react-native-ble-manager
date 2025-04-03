@@ -784,7 +784,7 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
         serviceUuids: ['00001888-0000-1000-8000-00805f9b34fb'],
         manufactureData: [manufactureDataUnit],
         serviceData: [serviceDataUnit],
-        includeDeviceName: true
+        // includeDeviceName: true
       };
       let advResponse: ble.AdvertiseData = {
         serviceUuids: ['00001888-0000-1000-8000-00805f9b34fb'],
