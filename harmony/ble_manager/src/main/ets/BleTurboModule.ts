@@ -626,7 +626,7 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
   disconnect(peripheralId: string, force: boolean): Promise<void> {
     this.logger.info("Disconnect from: " + peripheralId);
     const peripheral = this.peripherals.get(peripheralId);
-    if (peripheral) {
+    if (peripheral.isConnected()) {
       peripheral.disconnect()
       return Promise.resolve();
     }
