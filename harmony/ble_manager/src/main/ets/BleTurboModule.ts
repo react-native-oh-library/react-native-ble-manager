@@ -627,7 +627,10 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
     this.logger.info("Disconnect from: " + peripheralId);
     const peripheral = this.peripherals.get(peripheralId);
     if (peripheral.isConnected()) {
-      peripheral.disconnect()
+      const err = peripheral.disconnect()
+      if (err) {
+        return Promise.reject(err)
+      }
       return Promise.resolve();
     }
     return Promise.reject('Peripheral not found')
