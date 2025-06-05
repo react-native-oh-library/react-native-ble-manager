@@ -154,6 +154,7 @@ export default class PeripheralData {
       }
     }catch (error){
       Logger.error('errCode: ' + (error as BusinessError).code + ', errMessage: ' + (error as BusinessError).message);
+      return error
     }
   }
 
