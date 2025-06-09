@@ -471,12 +471,12 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
 
   start(options: StartOptions): Promise<void> {
     Logger.info("start")
-    this.startAdvertising()
-    this.addService()
-    this.onCharacteristicWrite()
-    this.onCharacteristicRead()
-    this.onDescriptorWrite()
-    this.onDescriptorRead()
+    // this.startAdvertising()
+    // this.addService()
+    // this.onCharacteristicWrite()
+    // this.onCharacteristicRead()
+    // this.onDescriptorWrite()
+    // this.onDescriptorRead()
     this.scanManager = new DefaultScanManager(this.ctx, this)
     access.on('stateChange', this.onStateChange.bind(this));
     connection.on('bondStateChange', this.onBondStateChange.bind(this));
@@ -787,12 +787,12 @@ export class BleTurboModule extends TurboModule implements TM.ReactNativeBleMana
         serviceUuids: ['00001888-0000-1000-8000-00805f9b34fb'],
         manufactureData: [manufactureDataUnit],
         serviceData: [serviceDataUnit],
+        includeDeviceName: true
       };
       let advResponse: ble.AdvertiseData = {
         serviceUuids: ['00001888-0000-1000-8000-00805f9b34fb'],
         manufactureData: [manufactureDataUnit],
         serviceData: [serviceDataUnit],
-        includeDeviceName: true
       };
       let advertisingParams: ble.AdvertisingParams = {
         advertisingSettings: setting,
