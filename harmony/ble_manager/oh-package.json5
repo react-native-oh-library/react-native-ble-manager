@@ -7,6 +7,6 @@
   type: 'module',
   version: '11.5.3-rc.3',
   dependencies: {
-    "@rnoh/react-native-openharmony": "file:../libs/react_native_openharmony-5.0.0.500.har"
+    "@rnoh/react-native-openharmony": "file:../../node_modules/react-native-harmony/harmony/react_native_openharmony.har"
   },
 }

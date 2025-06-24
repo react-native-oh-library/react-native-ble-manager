@@ -61,14 +61,14 @@ export interface Spec extends TurboModule {
     readDescriptor(peripheralId: string, serviceUUID: string, characteristicUUID: string, descriptorUUID: string): Promise<number[]>;
     writeDescriptor(peripheralId: string, serviceUUID: string, characteristicUUID: string, descriptorUUID: string, data: number[]): Promise<void>;
     readRSSI(peripheralId: string): Promise<number>;
-    retrieveServices(peripheralId: string, serviceUUIDs?: string[]): Promise<PeripheralInfo>;
+    retrieveServices(peripheralId: string, serviceUUIDs?: string[]): Promise<Object>;
     write(peripheralId: string, serviceUUID: string, characteristicUUID: string, data: number[], maxByteSize?: number): Promise<void>;
     connect(peripheralId: string, options?: ConnectOptions): Promise<void>;
     createBond(peripheralId: string, peripheralPin?: string | null): Promise<void>;
     removeBond(peripheralId: string): Promise<void>;
     disconnect(peripheralId: string, force?: boolean): Promise<void>;
     startNotification(peripheralId: string, serviceUUID: string, characteristicUUID: string): Promise<void>;
-    checkState(): Promise<BleState>;
+    checkState(): Promise<string>;
     start(options?: StartOptions): Promise<void>;
     scan(serviceUUIDs: string[], seconds: number, allowDuplicates?: boolean, scanningOptions?: ScanOptions): Promise<void>;
     stopScan(): Promise<void>;
@@ -88,11 +88,10 @@ export interface Spec extends TurboModule {
     getAssociatedPeripherals(): Promise<Peripheral[]>;
     removeAssociatedPeripheral(peripheralId: string): Promise<void>;
     supportsCompanion(): Promise<boolean>;
-    companionScan(serviceUUIDs: string[], options?: CompanionScanOptions): Promise<Peripheral | null>;
+    companionScan(serviceUUIDs: string[], options?: CompanionScanOptions): Promise<Object>;
     setName(name: string): void;
     getMaximumWriteValueLengthForWithoutResponse(peripheralId: string): Promise<number>;
     getMaximumWriteValueLengthForWithResponse(peripheralId: string): Promise<number>;
 }
-
 
 export default TurboModuleRegistry.get<Spec>('ReactNativeBleManager')!;
